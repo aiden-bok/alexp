@@ -34,6 +34,12 @@
     "winston": "^3.9.0",
     "winston-daily-rotate-file": "^4.7.1"
   },
+  "devDependencies": {
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
+    "prettier": "^2.8.8",
+    "prettier-eslint": "^15.0.1"
+  },
   "scripts": {
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
