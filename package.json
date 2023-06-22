@@ -1,0 +1,39 @@
+{
+  "name": "alexp",
+  "version": "0.0.1",
+  "description": "ALExp is a library that makes it easy to configure a Node.js back-end server using the Express framework.",
+  "keywords": [
+    "back-end",
+    "backend",
+    "common",
+    "express",
+    "library",
+    "log",
+    "logger",
+    "morgan",
+    "node.js",
+    "node",
+    "winston"
+  ],
+  "author": "Aiden <bokjaeoh@gmail.com>",
+  "license": "ISC",
+  "engines": {
+    "node": ">= 18.16.1"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "connect-timeout": "^1.9.0",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "morgan": "^1.10.0",
+    "pug": "^3.0.2",
+    "split": "^1.0.1",
+    "winston": "^3.9.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
