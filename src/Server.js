@@ -23,6 +23,17 @@ const applyConfig = (custom = {}, original = Config) => {
 }
 
 /**
+ * Returns the port to listen on on the `Express` server.
+ *
+ * @param {Config} config Configuration.
+ * @returns {Number|String} Port to listen on `Express` server.
+ */
+const getPort = (config) => {
+  const port = process?.env?.PORT || config.port
+  return port.constructor.name === 'String' ? port : parseInt(port, 10)
+}
+
+/**
  * Create and return `Express` server application.
  *
  * @param {Config} [config] Configuration object to use when creating an 'Express' server application.
@@ -35,7 +46,9 @@ const create = (config) => {
   const app = express()
   // TODO: Express settings
 
-  http.createServer(app)
+  const server = http.createServer(app)
+  const port = getPort(config)
+  server.listen(port)
 
   return app
 }
