@@ -7,7 +7,16 @@ const Config = {
   /**
    * @property {Object} logger Configuration object related to the logger.
    */
-  logger: {},
+  logger: {
+    /**
+     * @property {Boolean} [splat=true] Wether to use string interpolation('%d', '%s') splat for style messages.
+     */
+    splat: true,
+    /**
+     * @property {String} [timestamp='YYYY-MM-DD HH:mm:ss.SSS'] Timestamp format to use when outputting the log output message reception time.
+     */
+    timestamp: 'YYYY-MM-DD HH:mm:ss.SSS'
+  },
   /**
    * @property {Object} server Configuration object related to the server application.
    */
