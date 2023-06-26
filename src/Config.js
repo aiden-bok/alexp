@@ -30,6 +30,19 @@ const Config = {
       size: '30m'
     },
     /**
+     * @property {Number} level Log output level.
+     * |Level |Method  |
+     * |-----:|:-------|
+     * |     0|error   |
+     * |     1|warn    |
+     * |     2|info    |
+     * |     3|http    |
+     * |     4|verbose |
+     * |     5|debug   |
+     * |     6|silly   |
+     */
+    level: 3,
+    /**
      * @property {Boolean} splat Wether to use string interpolation('%d', '%s') splat for style messages.
      */
     splat: true,

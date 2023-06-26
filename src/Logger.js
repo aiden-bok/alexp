@@ -1,10 +1,16 @@
 import fs from 'fs'
-import path, { basename } from 'path'
+import path from 'path'
 import split from 'split'
 import winston from 'winston'
+import winstonDaily from 'winston-daily-rotate-file'
 
 import Config, { applyConfig } from './Config.js'
 import { fileURLToPath } from 'url'
+
+/**
+ * @constant {Array} LEVELS List of log levels.
+ */
+const LEVELS = ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']
 
 /**
  * Create and return a log format(`winston.Format`) using the passed configuration object.
@@ -81,7 +87,23 @@ const setTransports = (config) => {
   }
   option = { ...option, maxSize }
 
+  // Log level
+  let level = 3
+  if (!isNaN(cfg?.level)) {
+    level = cfg.level > 6 ? 6 : cfg.level < 0 ? 0 : cfg.level
+  }
+
+  // Log transports
   const transports = []
+  for (let i = 0; i <= level; i++) {
+    transports.push(
+      new winstonDaily({
+        ...option,
+        filename: `%DATE%-${LEVELS[i]}.log`,
+        level: LEVELS[i]
+      })
+    )
+  }
 
   // Console logging
   transports.push(new winston.transports.Console({ ...option, level: 'silly' }))
