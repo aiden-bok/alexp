@@ -5,6 +5,10 @@
  */
 const Config = {
   /**
+   * @property {Object} logger Configuration object related to the logger.
+   */
+  logger: {},
+  /**
    * @property {Object} server Configuration object related to the server application.
    */
   server: {

@@ -1,5 +1,6 @@
+import Logger from './Logger.js'
 import Server from './Server.js'
 
-const ALExp = { Server }
+const ALExp = { Logger, Server }
 
 export default ALExp
