@@ -9,11 +9,32 @@ const Config = {
    */
   logger: {
     /**
-     * @property {Boolean} [splat=true] Wether to use string interpolation('%d', '%s') splat for style messages.
+     * @property {Object} file Configuration object for log files.
+     */
+    file: {
+      /**
+       * @property {String} date Date pattern string to use for log file names.
+       */
+      date: 'YYYYMMDD',
+      /**
+       *@property {String} retention Retention period to retain log files.
+       */
+      retention: '90d',
+      /**
+       * @property {String} path Path where log files will be saved.
+       */
+      path: 'logs',
+      /**
+       * @property {String} size Maximum size of one log file.
+       */
+      size: '30m'
+    },
+    /**
+     * @property {Boolean} splat Wether to use string interpolation('%d', '%s') splat for style messages.
      */
     splat: true,
     /**
-     * @property {String} [timestamp='YYYY-MM-DD HH:mm:ss.SSS'] Timestamp format to use when outputting the log output message reception time.
+     * @property {String} timestamp Timestamp format to use when outputting the log output message reception time.
      */
     timestamp: 'YYYY-MM-DD HH:mm:ss.SSS'
   },
@@ -22,7 +43,7 @@ const Config = {
    */
   server: {
     /**
-     * @property {Number} port Port to listen on the `Express` server.
+     * @property {Number|String} port Port to listen on the `Express` server.
      */
     port: 80
   }
