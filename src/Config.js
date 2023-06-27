@@ -58,7 +58,19 @@ const Config = {
     /**
      * @property {Number|String} port Port to listen on the `Express` server.
      */
-    port: 80
+    port: 80,
+    /**
+     * @property {Boolean} trustProxy If you have `Express` server application behind proxy, need to set `trust proxy` to true.
+     */
+    trustProxy: true,
+    /**
+     * @property {String} viewEngine View engine to use in `Express` server application.
+     */
+    viewEngine: 'pug',
+    /**
+     * @property {String|Array} views Path where view pages to be used by `Express` server application are located.
+     */
+    views: 'views'
   }
 }
 

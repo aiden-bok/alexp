@@ -16,6 +16,32 @@ const getPort = (config) => {
 }
 
 /**
+ * Setting the created `Express` server application.
+ *
+ * @param {Express} app Created `Express` instance.
+ * @param {Config} config Configuration object to use when setting an 'Express' server application.
+ */
+const setExpress = (app, config) => {
+  const tag = '[ALExp.Server.setExpress]'
+
+  const port = getPort(config)
+  app.set('port', port)
+  log.debug(`${tag} set port: ${port}`)
+
+  const cfg = config?.server
+  app.set('trust proxy', cfg?.trustProxy)
+  log.debug(`${tag} set trust proxy: ${cfg?.trustProxy}`)
+
+  app.set('view engine', cfg?.viewEngine)
+  log.debug(`${tag} set view engine: ${cfg?.viewEngine}`)
+
+  app.set('views', cfg?.views)
+  log.debug(`${tag} set views: ${cfg?.views}`)
+
+  getBasePath()
+}
+
+/**
  * Create and return `Express` server application.
  *
  * @param {Config} [config] Configuration object to use when creating an 'Express' server application.
@@ -27,11 +53,12 @@ const create = (config) => {
 
   // Logger
   const log = Logger.create(config) || console
-  const tag = `[ALExp.Server.create]`
+  const tag = '[ALExp.Server.create]'
   global.log = log
-  log.debug(`Configuration for ALExp: %o`, config)
+  log.debug('Configuration for ALExp: %o', config)
 
   const app = express()
+  setExpress(app, config)
   // TODO: Express settings
 
   const server = http.createServer(app)
