@@ -23,7 +23,7 @@ const Config = {
       /**
        * @property {String} path Path where log files will be saved.
        */
-      path: '../logs',
+      path: 'logs',
       /**
        * @property {String} size Maximum size of one log file.
        */

@@ -5,7 +5,6 @@ import winston from 'winston'
 import winstonDaily from 'winston-daily-rotate-file'
 
 import Config, { applyConfig } from './Config.js'
-import { fileURLToPath } from 'url'
 
 /**
  * @constant {Array} LEVELS List of log levels.
@@ -60,15 +59,9 @@ const setTransports = (config) => {
   option = { ...option, datePattern }
 
   // Log file path
-  const urlCurrent = fileURLToPath(import.meta.url)
-  const pathBase = path.dirname(urlCurrent)
-  let dirname = path.resolve(`${pathBase}/logs`)
+  let dirname = path.resolve(`logs`)
   if (cfg?.file?.path?.constructor.name === 'String') {
-    if (cfg.file.path.indexOf('/') === 0) {
-      dirname = path.resolve(`${cfg.file.path}`)
-    } else {
-      dirname = path.resolve(`${pathBase}/${cfg.file.path}`)
-    }
+    dirname = path.resolve(cfg.file.path)
   }
   !fs.existsSync(dirname) && fs.mkdirSync(dirname)
   option = { ...option, dirname }
