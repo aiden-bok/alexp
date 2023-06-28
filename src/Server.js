@@ -177,6 +177,6 @@ const create = (config) => {
  *
  * @namespace
  */
-const Server = { create }
+const Server = { create, Router: express.Router }
 
 export default Server
