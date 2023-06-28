@@ -23,7 +23,7 @@ $RECYCLE.BIN/
 
 # Node.js ----------------------------------------------------------------------
 ## Dependencies
-/node_modules
+node_modules
 package-lock.json
 
 ## Log
@@ -31,10 +31,10 @@ logs
 *.log
 
 ## Test
-/coverage
+coverage
 
 # Visual Studio Code -----------------------------------------------------------
 ## Settings
-/.vscode
+.vscode
 
 # ------------------------------------------------------------------------------
