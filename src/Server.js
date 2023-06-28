@@ -1,5 +1,12 @@
+import compression from 'compression'
+import timeout from 'connect-timeout'
+import cookieParser from 'cookie-parser'
 import express from 'express'
+import session from 'express-session'
 import http from 'http'
+import createError from 'http-errors'
+import morgan from 'morgan'
+import path from 'path'
 
 import Config, { applyConfig } from './Config.js'
 import Logger from './Logger.js'
@@ -23,22 +30,88 @@ const getPort = (config) => {
  */
 const setExpress = (app, config) => {
   const tag = '[ALExp.Server.setExpress]'
+  const cfg = config?.server
 
   const port = getPort(config)
   app.set('port', port)
   log.debug(`${tag} set port: ${port}`)
 
-  const cfg = config?.server
   app.set('trust proxy', cfg?.trustProxy)
   log.debug(`${tag} set trust proxy: ${cfg?.trustProxy}`)
 
-  app.set('view engine', cfg?.viewEngine)
+  cfg?.viewEngine && app.set('view engine', cfg.viewEngine)
   log.debug(`${tag} set view engine: ${cfg?.viewEngine}`)
 
-  app.set('views', cfg?.views)
-  log.debug(`${tag} set views: ${cfg?.views}`)
+  cfg?.views && app.set('views', path.resolve(cfg.views))
+  log.debug(`${tag} set views: ${path.resolve(cfg?.views)}`)
+}
 
-  getBasePath()
+/**
+ * Setting the modules to be used in the created `Express` server application.
+ *
+ * @param {Express} app Created `Express` instance.
+ * @param {Config} config Configuration object to use when setting an 'Express' server application.
+ */
+const useExpress = (app, config) => {
+  const tag = '[ALExp.Server.useExpress]'
+  const cfg = config?.server
+
+  if (cfg?.useCompression !== false) {
+    app.use(compression())
+    log.debug(`${tag} use compression`)
+  }
+
+  if (cfg?.useCookieParser !== false) {
+    app.use(cookieParser())
+    log.debug(`${tag} use cookieParser`)
+  }
+
+  if (cfg?.useReqJSON !== false) {
+    app.use(express.json())
+    log.debug(`${tag} use express.json`)
+  }
+
+  if (cfg?.useURLEncodeExtended !== false) {
+    app.use(express.urlencoded({ extended: true }))
+    log.debug(`${tag} use express.urlencoded extended`)
+  }
+
+  if (config?.logger?.stream && log?.stream) {
+    app.use(morgan('combined', { stream: log.stream }))
+    log.debug(`${tag} use morgan with stream`)
+  } else {
+    app.use(morgan('combined'))
+    log.debug(`${tag} use morgan`)
+  }
+
+  cfg?.session && app.use(session(cfg.session))
+  log.debug(`${tag} session configuration: %o`, cfg?.session)
+
+  cfg?.timeout && app.use(timeout(cfg.timeout))
+  log.debug(`${tag} use timeout: %o`, cfg?.timeout)
+
+  cfg?.static && app.use(express.static(path.resolve(cfg.static)))
+  log.debug(`${tag} use static: %o`, path.resolve(cfg?.static))
+
+  if (cfg?.ignore404) {
+    app.get('*', (req, res) => {
+      res.sendFile('/', { root: cfg?.static })
+    })
+    log.debug(`${tag} ignore 404`)
+  }
+
+  app.use((req, res, next) => {
+    next(createError(404))
+  })
+
+  app.use((err, req, res) => {
+    err?.status !== 404 && log.error(`${tag} Error: %o`, err)
+
+    res.locals.message = err?.message
+    res.locals.error = req?.app?.get('env') === 'development' ? err : {}
+    res.status(err?.status || 500)
+    res.render('error')
+  })
 }
 
 /**
@@ -59,7 +132,7 @@ const create = (config) => {
 
   const app = express()
   setExpress(app, config)
-  // TODO: Express settings
+  useExpress(app, config)
 
   const server = http.createServer(app)
   const port = getPort(config)
