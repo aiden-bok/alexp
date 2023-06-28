@@ -27,7 +27,7 @@ $RECYCLE.BIN/
 package-lock.json
 
 ## Log
-/logs
+logs
 *.log
 
 ## Test
