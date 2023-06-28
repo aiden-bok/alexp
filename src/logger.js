@@ -4,7 +4,7 @@ import split from 'split'
 import winston from 'winston'
 import winstonDaily from 'winston-daily-rotate-file'
 
-import Config, { applyConfig } from './Config.js'
+import { applyConfig, config } from './config.js'
 
 /**
  * @constant {Array} LEVELS List of log levels.
@@ -14,12 +14,12 @@ const LEVELS = ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']
 /**
  * Create and return a log format(`winston.Format`) using the passed configuration object.
  *
- * @param {Config} config Logger configuration object to use when creating a `winston.Logger` instance.
+ * @param {config} custom Logger configuration object to use when creating a `winston.Logger` instance.
  * @returns {winston.Format} Log output format to be used by `winston.Logger`.
  */
-const logFormat = (config) => {
+const logFormat = (custom) => {
   const { combine, printf, splat, timestamp } = winston.format
-  const cfg = config?.logger
+  const cfg = custom?.logger
   const formats = []
 
   if (cfg?.splat !== false) {
@@ -28,7 +28,7 @@ const logFormat = (config) => {
 
   let format = 'YYYY-MM-DD HH:mm:ss.SSS'
   if (cfg?.timestamp?.constructor.name === 'String') {
-    format = config.logger.timestamp
+    format = cfg.timestamp
   }
   formats.push(timestamp({ format }))
 
@@ -44,12 +44,12 @@ const logFormat = (config) => {
 /**
  * Create and return log transport objects using the passed configuration object.
  *
- * @param {Config} config Logger configuration object to use when creating a `winston.Logger` instance.
+ * @param {config} custom Logger configuration object to use when creating a `winston.Logger` instance.
  * @returns {winston.Transports} Configured log transports
  */
-const setTransports = (config) => {
-  let option = { format: logFormat(config) }
-  const cfg = config?.logger
+const setTransports = (custom) => {
+  let option = { format: logFormat(custom) }
+  const cfg = custom?.logger
 
   // Log file name
   let datePattern = 'YYYYMMDD'
@@ -107,13 +107,13 @@ const setTransports = (config) => {
 /**
  * Crreate and return a logger object for server application logs.
  *
- * @param {Config} [config] Logger configuration object to use when creating a `winston.Logger` instance.
+ * @param {config} [custom] Logger configuration object to use when creating a `winston.Logger` instance.
  * @returns {winston.Logger} `winston.Logger` instance.
  */
-const create = (config) => {
-  config = (config && applyConfig(config)) || Config
+const create = (custom) => {
+  custom = (custom && applyConfig(custom)) || config
 
-  const logger = winston.createLogger({ transports: setTransports(config) })
+  const logger = winston.createLogger({ transports: setTransports(custom) })
   logger.stream = split().on('data', (message) => {
     logger.http(message)
   })
@@ -124,8 +124,8 @@ const create = (config) => {
 /**
  * Logger object for managing server logs using the `winston` framework.
  *
- * @namespace Logger
+ * @namespace logger
  */
-const Logger = { create }
+const logger = { create }
 
-export default Logger
+export default logger

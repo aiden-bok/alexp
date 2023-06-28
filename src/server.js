@@ -8,17 +8,17 @@ import createError from 'http-errors'
 import morgan from 'morgan'
 import path from 'path'
 
-import Config, { applyConfig } from './Config.js'
-import Logger from './Logger.js'
+import { applyConfig, config } from './config.js'
+import logger from './logger.js'
 
 /**
  * Returns the port to listen on on the `Express` server.
  *
- * @param {Config} config Configuration.
+ * @param {config} custom Configuration.
  * @returns {Number|String} Port to listen on `Express` server.
  */
-const getPort = (config) => {
-  const port = process?.env?.PORT || config?.server?.port || 80
+const getPort = (custom) => {
+  const port = process?.env?.PORT || custom?.server?.port || 80
   return port.constructor.name === 'String' ? port : parseInt(port, 10)
 }
 
@@ -26,13 +26,13 @@ const getPort = (config) => {
  * Setting the created `Express` server application.
  *
  * @param {Express} app Created `Express` instance.
- * @param {Config} config Configuration object to use when setting an 'Express' server application.
+ * @param {config} custom Configuration object to use when setting an 'Express' server application.
  */
-const setExpress = (app, config) => {
-  const tag = '[ALExp.Server.setExpress]'
-  const cfg = config?.server
+const setExpress = (app, custom) => {
+  const tag = '[alexp.server.setExpress]'
+  const cfg = custom?.server
 
-  const port = getPort(config)
+  const port = getPort(custom)
   app.set('port', port)
   log.debug(`${tag} set port: ${port}`)
 
@@ -50,11 +50,11 @@ const setExpress = (app, config) => {
  * Setting the modules to be used in the created `Express` server application.
  *
  * @param {Express} app Created `Express` instance.
- * @param {Config} config Configuration object to use when setting an 'Express' server application.
+ * @param {config} custom Configuration object to use when setting an 'Express' server application.
  */
-const useExpress = (app, config) => {
-  const tag = '[ALExp.Server.useExpress]'
-  const cfg = config?.server
+const useExpress = (app, custom) => {
+  const tag = '[alexp.server.useExpress]'
+  const cfg = custom?.server
 
   if (cfg?.useCompression !== false) {
     app.use(compression())
@@ -76,7 +76,7 @@ const useExpress = (app, config) => {
     log.debug(`${tag} use express.urlencoded extended`)
   }
 
-  if (config?.logger?.stream && log?.stream) {
+  if (custom?.logger?.stream && log?.stream) {
     app.use(morgan('combined', { stream: log.stream }))
     log.debug(`${tag} use morgan with stream`)
   } else {
@@ -117,25 +117,25 @@ const useExpress = (app, config) => {
 /**
  * Create and return `Express` server application.
  *
- * @param {Config} [config] Configuration object to use when creating an 'Express' server application.
+ * @param {config} [custom] Configuration object to use when creating an 'Express' server application.
  * @returns {Express} `Express` server application instance.
  */
-const create = (config) => {
+const create = (custom) => {
   // Apply custom configuration
-  config = (config && applyConfig(config)) || Config
+  custom = (custom && applyConfig(custom)) || config
 
   // Logger
-  const log = Logger.create(config) || console
-  const tag = '[ALExp.Server.create]'
+  const log = logger.create(custom) || console
+  const tag = '[alexp.server.create]'
   global.log = log
-  log.debug('Configuration for ALExp: %o', config)
+  log.debug('Configuration for alexp: %o', custom)
 
   const app = express()
-  setExpress(app, config)
-  useExpress(app, config)
+  setExpress(app, custom)
+  useExpress(app, custom)
 
   const server = http.createServer(app)
-  const port = getPort(config)
+  const port = getPort(custom)
   const bind = typeof port === 'string' ? `namepipe ${port}` : `${port} port`
   server.listen(port)
 
@@ -177,6 +177,6 @@ const create = (config) => {
  *
  * @namespace
  */
-const Server = { create, Router: express.Router }
+const server = { create, Router: express.Router }
 
-export default Server
+export default server

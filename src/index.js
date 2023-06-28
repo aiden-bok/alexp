@@ -1,5 +1,5 @@
-import Server from './Server.js'
+import server from './server.js'
 
-const ALExp = { Server }
+const alexp = { server }
 
-export default ALExp
+export default alexp
