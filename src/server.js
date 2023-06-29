@@ -56,9 +56,9 @@ const setErrorPage = (app, custom) => {
   app.use((err, req, res, next) => {
     err?.status !== 404 && log.error(`${tag} %o`, err)
 
-    res.errorCode = err?.status || 500
+    res.locals.errorCode = err?.status || 500
     res.locals.errorMessage = err?.message
-    res.locals.error = process?.env?.NODE_ENV === 'development' ? err : {}
+    res.locals.error = process?.env?.NODE_ENV === 'development' ? err.stack : {}
     res.status(err?.status || 500)
 
     const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
