@@ -28,3 +28,8 @@ h2 {
   text-align: center;
   letter-spacing: 0.05em;
 }
+
+pre {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.75em;
+}
