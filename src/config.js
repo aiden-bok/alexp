@@ -64,6 +64,10 @@ export const config = {
      */
     ignore404: false,
     /**
+     * @property {Express.Router} router `Router` instance to use on `Express` server application instance.
+     */
+    router: null,
+    /**
      * @property {Number|String} port Port to listen on the `Express` server.
      */
     port: 80,
