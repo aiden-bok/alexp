@@ -1,0 +1,30 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #efefef;
+  font-family: 'Helvetica Neue', 'Apple SD Gothic Neo', Arial, sans-serif;
+  background-color: #333333;
+}
+
+h1 {
+  margin: 0;
+  color: #efefef;
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1.6em;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+h2 {
+  margin: 0;
+  color: #cdcdcd;
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1.6em;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
