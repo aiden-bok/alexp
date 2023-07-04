@@ -59,11 +59,11 @@ const setErrorPage = (app, custom) => {
 
     res.locals.errorCode = err?.status || 500
     res.locals.errorMessage = err?.message
-    res.locals.error = process?.env?.NODE_ENV === 'development' ? err.stack : {}
+    res.locals.error = process.env?.NODE_ENV === 'development' ? err?.stack : {}
     res.status(err?.status || 500)
 
     const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
-    fs.existsSync(pathView) ? res.render('error') : next()
+    fs.existsSync(pathView) ? res.render('error') : next(err)
   })
 }
 
