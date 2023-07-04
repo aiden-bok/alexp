@@ -4,6 +4,8 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
   color: #efefef;
   font-family: 'Helvetica Neue', 'Apple SD Gothic Neo', Arial, sans-serif;
   background-color: #333333;
