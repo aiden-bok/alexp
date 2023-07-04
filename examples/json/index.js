@@ -1,6 +1,6 @@
 import alexp from 'alexp'
 
-import router from './router/index.js'
+import router from './routes/index.js'
 
 // Create `Express` server application instance
 const app = alexp.server.create()
