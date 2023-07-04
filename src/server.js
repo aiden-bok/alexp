@@ -1,10 +1,11 @@
 import compression from 'compression'
 import timeout from 'connect-timeout'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import express from 'express'
 import session from 'express-session'
+import fs from 'fs'
 import http from 'http'
-import createError from 'http-errors'
 import morgan from 'morgan'
 import path from 'path'
 
@@ -20,6 +21,50 @@ import logger from './logger.js'
 const getPort = (custom) => {
   const port = process?.env?.PORT || custom?.server?.port || 80
   return port.constructor.name === 'String' ? port : parseInt(port, 10)
+}
+
+/**
+ * Set the error pages of the `Express` server application instance.
+ *
+ * @param {Express} app Created `Express` instance.
+ * @param {config} custom Configuration object to use when setting an 'Express' server application.
+ */
+const setErrorPage = (app, custom) => {
+  const tag = '[alexp.server.setErrorPage]'
+  const cfg = custom?.server
+
+  // 404 error
+  if (cfg?.ignore404) {
+    app.get('*', (req, res) => {
+      res.sendFile('/', { root: cfg?.static })
+    })
+    log.debug(`${tag} ignore 404`)
+  } else {
+    app.use((req, res, next) => {
+      log.error(`${tag} 404 not found`)
+
+      res.locals.errorCode = 404
+      res.locals.errorMessage = 'Not found'
+      res.locals.error = null
+      res.status(404)
+
+      const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
+      fs.existsSync(pathView) ? res.render('error') : next()
+    })
+  }
+
+  // Server error
+  app.use((err, req, res, next) => {
+    err?.status !== 404 && log.error(`${tag} %o`, err)
+
+    res.locals.errorCode = err?.status || 500
+    res.locals.errorMessage = err?.message
+    res.locals.error = process.env?.NODE_ENV === 'development' ? err?.stack : {}
+    res.status(err?.status || 500)
+
+    const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
+    fs.existsSync(pathView) ? res.render('error') : next(err)
+  })
 }
 
 /**
@@ -44,6 +89,65 @@ const setExpress = (app, custom) => {
 
   cfg?.views && app.set('views', path.resolve(cfg.views))
   log.debug(`${tag} set views: ${path.resolve(cfg?.views)}`)
+}
+
+/**
+ * Set the `Router` to be used in th `Express` server application.
+ *
+ * @param {Express} app Created `Express` instance.
+ * @param {config} custom Configuration object to use when setting an 'Express' server application.
+ */
+const setRouter = (app, custom) => {
+  const tag = '[alexp.server.setRouter]'
+  const cfg = custom?.server
+
+  if (cfg?.router) {
+    app.use('/', cfg.router)
+    log.debug(`${tag} use router by configuration`)
+
+    setErrorPage(app, custom)
+  }
+
+  /**
+   * Set the `Router` to be used in th `Express` server application.
+   *
+   * @param {Express.Router} router  `Router` instance to use on `Express` server application instance.
+   */
+  app.setRouter = (router) => {
+    app.use('/', router)
+    log.debug(`${tag} use router by method: ${router}`)
+
+    setErrorPage(app, custom)
+  }
+}
+
+/**
+ * Use after configuring `cors` module to allow CORS
+ *
+ * @param {Express} app Created `Express` instance.
+ * @param {config} custom Configuration object to use when setting an 'Express' server application.
+ */
+const useCORS = (app, custom) => {
+  const tag = '[alexp.server.useCORS]'
+  const cfg = custom?.server
+  log.debug(`${tag} use CORS`)
+  log.debug(`${tag} CORS origin: ${cfg.cors.options?.origin}`)
+  log.debug(`${tag} CORS allow list: ${cfg.cors.allowList}`)
+
+  app.use(cors())
+  cors(cfg.cors.options)
+
+  const corsOptionsDelegate = (req, callback) => {
+    let corsOptions = {}
+    if (cfg.cors.allowList?.indexOf(req.header('Origin')) !== -1) {
+      corsOptions = { origin: true }
+    } else {
+      corsOptions = { origin: false }
+    }
+    callback(null, corsOptions)
+  }
+
+  cors(corsOptionsDelegate)
 }
 
 /**
@@ -93,25 +197,7 @@ const useExpress = (app, custom) => {
   cfg?.static && app.use(express.static(path.resolve(cfg.static)))
   log.debug(`${tag} use static: %o`, path.resolve(cfg?.static))
 
-  if (cfg?.ignore404) {
-    app.get('*', (req, res) => {
-      res.sendFile('/', { root: cfg?.static })
-    })
-    log.debug(`${tag} ignore 404`)
-  }
-
-  app.use((req, res, next) => {
-    next(createError(404))
-  })
-
-  app.use((err, req, res) => {
-    err?.status !== 404 && log.error(`${tag} Error: %o`, err)
-
-    res.locals.message = err?.message
-    res.locals.error = req?.app?.get('env') === 'development' ? err : {}
-    res.status(err?.status || 500)
-    res.render('error')
-  })
+  cfg?.cors?.use === true && useCORS(app, custom)
 }
 
 /**
@@ -128,11 +214,14 @@ const create = (custom) => {
   const log = logger.create(custom) || console
   const tag = '[alexp.server.create]'
   global.log = log
+
+  log.info(`${'='.repeat(80)}`)
   log.debug('Configuration for alexp: %o', custom)
 
   const app = express()
   setExpress(app, custom)
   useExpress(app, custom)
+  setRouter(app, custom)
 
   const server = http.createServer(app)
   const port = getPort(custom)
@@ -167,7 +256,10 @@ const create = (custom) => {
   // Listening handler
   server.on('listening', () => {
     log.info(`${tag} Listen on ${bind}`)
+    log.info(`${'='.repeat(80)}`)
   })
+
+  log.debug(`${'-'.repeat(79)}`)
 
   return app
 }
