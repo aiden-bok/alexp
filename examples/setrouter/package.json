@@ -1,0 +1,15 @@
+{
+  "name": "alexp-example-setrouter",
+  "version": "1.0.0",
+  "author": "Aiden <bokjaeoh@gmail.com>",
+  "license": "ISC",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "alexp": "file:../.."
+  }
+}
