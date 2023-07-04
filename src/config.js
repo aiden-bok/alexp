@@ -60,6 +60,33 @@ export const config = {
    */
   server: {
     /**
+     * @property {Object} cors CORS(Cross-Origin Resource Sharing) configuration object for `Express` server application.
+     */
+    cors: {
+      /**
+       * @property {Array} allowList List of domains to allow CORS.
+       */
+      allowList: ['*'],
+      /**
+       * @property {Object} options CORS configuration to pass to `cors` module.
+       */
+      options: {
+        /**
+         * @property {String|Array|RegExp|Boolean|Function} origin `Access-Control-Allow-Origin` CORS header.
+         * (@see https://expressjs.com/en/resources/middleware/cors.html)
+         */
+        origin: '*',
+        /**
+         * @property {Number} optionsSuccessStatus Provides a status code to use for successful `OPTIONS` requests, since some legacy browsers(IE11, various SmartTVs) choke on 204.
+         */
+        optionsSuccessStatus: 200
+      },
+      /**
+       * @property {Boolean} use Whether to use the `cors` module to allow CORS.
+       */
+      use: false
+    },
+    /**
      * @property {Boolean} ignore404 Whether to ignore 404(Not Found) errors and use default pages.
      */
     ignore404: false,

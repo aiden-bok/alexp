@@ -1,6 +1,7 @@
 import compression from 'compression'
 import timeout from 'connect-timeout'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import express from 'express'
 import session from 'express-session'
 import fs from 'fs'
@@ -121,6 +122,35 @@ const setRouter = (app, custom) => {
 }
 
 /**
+ * Use after configuring `cors` module to allow CORS
+ *
+ * @param {Express} app Created `Express` instance.
+ * @param {config} custom Configuration object to use when setting an 'Express' server application.
+ */
+const useCORS = (app, custom) => {
+  const tag = '[alexp.server.useCORS]'
+  const cfg = custom?.server
+  log.debug(`${tag} use CORS`)
+  log.debug(`${tag} CORS origin: ${cfg.cors.options?.origin}`)
+  log.debug(`${tag} CORS allow list: ${cfg.cors.allowList}`)
+
+  app.use(cors())
+  cors(cfg.cors.options)
+
+  const corsOptionsDelegate = (req, callback) => {
+    let corsOptions = {}
+    if (cfg.cors.allowList?.indexOf(req.header('Origin')) !== -1) {
+      corsOptions = { origin: true }
+    } else {
+      corsOptions = { origin: false }
+    }
+    callback(null, corsOptions)
+  }
+
+  cors(corsOptionsDelegate)
+}
+
+/**
  * Setting the modules to be used in the created `Express` server application.
  *
  * @param {Express} app Created `Express` instance.
@@ -166,6 +196,8 @@ const useExpress = (app, custom) => {
 
   cfg?.static && app.use(express.static(path.resolve(cfg.static)))
   log.debug(`${tag} use static: %o`, path.resolve(cfg?.static))
+
+  cfg?.cors?.use === true && useCORS(app, custom)
 }
 
 /**
