@@ -33,28 +33,42 @@ const setErrorPage = (app, custom) => {
   const tag = '[alexp.server.setErrorPage]'
   const cfg = custom?.server
 
+  const routes = app._router.stack
+  routes.forEach((route, i) => {
+    if (route.name === 'ignore404') routes.splice(i, 1)
+  })
+  routes.forEach((route, i) => {
+    if (route.name === 'handle404') routes.splice(i, 1)
+  })
+  routes.forEach((route, i) => {
+    if (route.name === 'handleError') routes.splice(i, 1)
+  })
+
   // 404 error
+  const ignore404 = (req, res) => {
+    res.sendFile('/', { root: cfg?.static })
+  }
+  const handle404 = (req, res, next) => {
+    log.error(`${tag} 404 not found`)
+
+    res.locals.errorCode = 404
+    res.locals.errorMessage = 'Not found'
+    res.locals.error = null
+    res.status(404)
+
+    const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
+    fs.existsSync(pathView) ? res.render('error') : next()
+  }
+
   if (cfg?.ignore404 === true) {
-    app.get('*', (req, res) => {
-      res.sendFile('/', { root: cfg?.static })
-    })
+    app.get('*', ignore404)
     log.debug(`${tag} ignore 404`)
   } else {
-    app.use((req, res, next) => {
-      log.error(`${tag} 404 not found`)
-
-      res.locals.errorCode = 404
-      res.locals.errorMessage = 'Not found'
-      res.locals.error = null
-      res.status(404)
-
-      const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
-      fs.existsSync(pathView) ? res.render('error') : next()
-    })
+    app.use(handle404)
   }
 
   // Server error
-  app.use((err, req, res, next) => {
+  const handleError = (err, req, res, next) => {
     err?.status !== 404 && log.error(`${tag} %o`, err)
 
     res.locals.errorCode = err?.status || 500
@@ -64,7 +78,8 @@ const setErrorPage = (app, custom) => {
 
     const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
     fs.existsSync(pathView) ? res.render('error') : next(err)
-  })
+  }
+  app.use(handleError)
 }
 
 /**
