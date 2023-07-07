@@ -34,7 +34,7 @@ const setErrorPage = (app, custom) => {
   const cfg = custom?.server
 
   // 404 error
-  if (cfg?.ignore404) {
+  if (cfg?.ignore404 === true) {
     app.get('*', (req, res) => {
       res.sendFile('/', { root: cfg?.static })
     })
@@ -104,9 +104,9 @@ const setRouter = (app, custom) => {
   if (cfg?.router) {
     app.use('/', cfg.router)
     log.debug(`${tag} use router by configuration`)
-
-    setErrorPage(app, custom)
   }
+
+  setErrorPage(app, custom)
 
   /**
    * Set the `Router` to be used in th `Express` server application.
