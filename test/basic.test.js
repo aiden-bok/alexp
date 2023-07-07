@@ -11,7 +11,7 @@ describe('Test default configuration server application', () => {
   beforeAll(async () => {
     app = alexp.server.create()
     app.get('/', (req, res) => {
-      res.send('Welcome')
+      res.status(200).send('Welcome')
     })
   })
 
