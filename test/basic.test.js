@@ -6,13 +6,17 @@ jest.useFakeTimers()
 import alexp from '../src/index.js'
 
 describe('Test default configuration server application', () => {
-  beforeAll(async () => {})
+  let app = null
 
-  afterAll(async () => {})
+  beforeAll(async () => {
+    app = alexp.server.create()
+    app.get('/', (req, res) => {
+      res.send('Welcome')
+    })
+  })
 
-  const app = alexp.server.create()
-  app.get('/', (req, res) => {
-    res.send('Welcome')
+  afterAll(async () => {
+    app.server.close()
   })
 
   test('Should response to root path request', () => {
