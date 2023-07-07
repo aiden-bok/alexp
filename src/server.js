@@ -69,6 +69,7 @@ const setErrorPage = (app, custom) => {
 
   // Server error
   const handleError = (err, req, res, next) => {
+    err && log.error(`${tag} %o`, err)
     err?.status !== 404 && log.error(`${tag} %o`, err)
 
     res.locals.errorCode = err?.status || 500
