@@ -259,6 +259,8 @@ const create = (custom) => {
     log.info(`${'='.repeat(80)}`)
   })
 
+  app.server = server
+
   log.debug(`${'-'.repeat(79)}`)
 
   return app
