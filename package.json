@@ -1,6 +1,6 @@
 {
   "name": "alexp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ALExp is a library that makes it easy to configure a Node.js back-end server using the Express framework.",
   "keywords": [
     "back-end",
