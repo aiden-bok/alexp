@@ -110,7 +110,7 @@ export const config = {
          * @property {String} domain Domain to which `cookie` will be applied.
          * By Default, no domain is set, and most clients will consider the `cookie` to apply to only current domain.
          */
-        domain: undefined,
+        domain: null,
         /**
          * @property {Boolean} httpOnly Whether to allow cookies to be sent only via HTTP and not client JavaScript, to protect against cross-site scripting (XSS) attacks.
          */
@@ -118,7 +118,7 @@ export const config = {
         /**
          * @property {Number} maxAge Specifies the number(in milliseconds) to use when calculating expires attribute of `cookie`.
          */
-        maxAge: undefined,
+        maxAge: null,
         /**
          * @property {String} path Path for the `cookie`.
          */
@@ -135,7 +135,7 @@ export const config = {
       /**
        * @property {Boolean} saveUninitialized Whether forces a `session` that is "uninitialized" to be saved to store.
        */
-      saveUninitialized: true,
+      saveUninitialized: false,
       /**
        * @property {String} secret Secret string used to sign `session` cookie.
        */
