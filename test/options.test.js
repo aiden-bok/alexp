@@ -11,7 +11,6 @@ describe('Test ignore404 option of configuration for server application', () => 
   beforeAll(async () => {
     const option = {
       server: {
-        ignore404: true,
         static: 'examples/simple/static'
       }
     }
@@ -25,7 +24,7 @@ describe('Test ignore404 option of configuration for server application', () => 
 
   test('Should response to request for page not found', () => {
     return request(app)
-      .get('/test')
+      .get('/')
       .expect(200)
       .then((response) => {
         expect(response.text.includes('<!DOCTYPE html>')).toBe(true)
