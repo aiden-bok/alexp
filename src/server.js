@@ -68,6 +68,14 @@ const setErrorPage = (app, custom) => {
   }
 
   // Server error
+  const wrapAsync = (callback) => (req, res, next) => {
+    callback(req, res, next).catch(next)
+  }
+  const handleAsyncError = wrapAsync(async (req, res) => {
+    await new Promise((resolve) => setTimeout(() => resolve(), 5000))
+    throw new Error('Async error')
+  })
+
   const handleError = (err, req, res, next) => {
     err && log.error(`${tag} %o`, err)
     err?.status !== 404 && log.error(`${tag} %o`, err)
@@ -80,6 +88,8 @@ const setErrorPage = (app, custom) => {
     const pathView = path.resolve(path.join(cfg?.views, 'error.pug'))
     fs.existsSync(pathView) ? res.render('error') : next(err)
   }
+
+  app.get('*', handleAsyncError)
   app.use(handleError)
 }
 
