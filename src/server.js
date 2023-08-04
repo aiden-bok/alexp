@@ -71,7 +71,7 @@ const setErrorPage = (app, custom) => {
   const wrapAsync = (callback) => (req, res, next) => {
     callback(req, res, next).catch(next)
   }
-  const handleAsyncError = wrapAsync(async (req, res) => {
+  const handleAsyncError = wrapAsync(async (/*req, res*/) => {
     await new Promise((resolve) => setTimeout(() => resolve(), 5000))
     throw new Error('Async error')
   })
