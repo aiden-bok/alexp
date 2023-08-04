@@ -34,17 +34,18 @@ const setErrorPage = (app, custom) => {
   const cfg = custom?.server
 
   const routes = app._router.stack
-  routes.forEach((route, i) => {
-    if (route.name === 'ignore404') routes.splice(i, 1)
-  })
-  routes.forEach((route, i) => {
-    if (route.name === 'handle404') routes.splice(i, 1)
-  })
-  routes.forEach((route, i) => {
-    if (route.name === 'handleError') routes.splice(i, 1)
-  })
+  const removeMiddleware = (route, i, routes) => {
+    switch (route.name) {
+      case 'ignore404':
+      case 'handle404':
+      case 'bound dispatch':
+      case 'handleError':
+        routes.splice(i, 1)
+    }
+  }
+  routes.forEach(removeMiddleware)
 
-  // 404 error
+  // 404 error handling
   const ignore404 = (req, res) => {
     res.sendFile('/', { root: cfg?.static })
   }
@@ -67,10 +68,21 @@ const setErrorPage = (app, custom) => {
     app.use(handle404)
   }
 
-  // Server error
+  // Asynchronous error handling
+  const wrapAsync = (callback) => (req, res, next) => {
+    callback(req, res, next).catch(next)
+  }
+  const handleAsyncError = async (req, res) => {
+    log.error(`${tag} Async Error: %o\n%o`, req, res)
+    await new Promise((resolve) => setTimeout(() => resolve(), 50))
+    throw new Error('Async error')
+  }
+  app.get('*', wrapAsync(handleAsyncError))
+
+  // Error handling
   const handleError = (err, req, res, next) => {
     err && log.error(`${tag} %o`, err)
-    err?.status !== 404 && log.error(`${tag} %o`, err)
+    err?.status !== 404 && log.error(`${tag} Error: %o`, err)
 
     res.locals.errorCode = err?.status || 500
     res.locals.errorMessage = err?.message
@@ -120,9 +132,8 @@ const setRouter = (app, custom) => {
   if (cfg?.router) {
     app.use('/', cfg.router)
     log.debug(`${tag} use router by configuration`)
+    setErrorPage(app, custom)
   }
-
-  setErrorPage(app, custom)
 
   /**
    * Set the `Router` to be used in th `Express` server application.
